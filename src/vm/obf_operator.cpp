@@ -22,7 +22,7 @@ static short getStypeR1Value(unsigned int instruction) {
 }
 
 static short getStypeImmValue(unsigned int instruction) {
-	return static_cast<short>((instruction >> 14) & 0x0fffff);
+	return static_cast<short>((instruction >> 14) & 0x01ff);
 }
 
 static ObfOps* decodeDtype(unsigned int instruction) {

@@ -1,6 +1,7 @@
 // -*- Mode: c++; Coding: utf-8; tab-width: 4; -*-
 #include <math.h>
 #include <stdexcept>
+#include <sstream>
 
 #include "obf_vm.hpp"
 #include "obf_reader.hpp"
@@ -22,6 +23,10 @@ int ObfVM::load(std::istream& stream) {
 void ObfVM::addFrame(const ObfFrame& frame) {
 	operators_.push_back(frame.instruction);
 	memory_.push_back(frame.data);
+}
+
+void ObfVM::setConfig(unsigned int config) {
+	input_[ input_.size() - 1 ] = config;
 }
 
 MappedPort& ObfVM::getInputPort() {
@@ -67,6 +72,10 @@ void ObfVM::executeStypeOps(StypeOps* op) {
 		case EQZ: status_ = mem[op->r1] == 0.0 ? 1 : 0; break;
 		case GEZ: status_ = mem[op->r1] >= 0.0 ? 1 : 0; break;
 		case GTZ: status_ = mem[op->r1] > 0.0 ? 1 : 0; break;
+		default:
+			std::stringstream ss;
+			ss << "unknown cmp op: " << op->addr;
+			throw std::runtime_error(ss.str());
 		}
 		break;
 	case Sqrt: mem[op->addr] = ::sqrt(mem[op->r1]); break;

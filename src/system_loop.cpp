@@ -28,8 +28,8 @@ bool SystemLoop::init(int argc, char *argv[]) {
 
 	vm_->dump(std::cout);
 	vm_->getInputPort()[2] = 10;
-	vm_->getInputPort()[3] = 30;
-	vm_->getInputPort()[9] = 1001;
+	vm_->getInputPort()[3] = 10;
+	vm_->setConfig(1001);
 
 	return true;
 }

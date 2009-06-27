@@ -31,6 +31,7 @@ public:
 
 	void addFrame(const ObfFrame& frame);
 
+	void setConfig(unsigned int config);
 	MappedPort& getInputPort();
 	MappedPort& getOutputPort();
 
