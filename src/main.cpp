@@ -14,7 +14,8 @@ struct ObfFrame
 class ObfReader
 {
 public:
-	ObfReader(std::istream& stream) : stream_(stream), counter_(0) {}
+	ObfReader(std::istream& stream) : stream_(stream), counter_(0) {
+	}
 	~ObfReader() {}
 
 	ObfFrame getNextFrame() {
@@ -37,7 +38,7 @@ public:
 	}
 
 private:
-	std::istream stream_;
+	std::istream& stream_;
 	int counter_;
 };
 
