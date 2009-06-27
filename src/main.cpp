@@ -6,16 +6,13 @@
 #include <fstream>
 #include <vector>
 
-#include "vm/obf_vm.hpp"
+#include <boost/shared_ptr.hpp>
+
+#include "window/sdl.hpp"
+#include "system_loop.hpp"
 
 void printUsage() {
 	std::cout << "usage: simulator obf" << std::endl;
-}
-
-void loadFromFile(ObfVM& vm, char *filename) {
-	std::fstream stream(filename, std::fstream::in | std::fstream::binary);
-	vm.load(stream);
-	stream.close();
 }
 
 int main(int argc, char *argv[])
@@ -25,9 +22,13 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
-	ObfVM vm;
-	loadFromFile(vm, argv[1]);
-	vm.dump(std::cout);
+	if (SDL::init() == -1) {
+		std::cout << "SDL_Init error: " << SDL::getError() << std::endl;
+		return 0;
+	}
 
-	return 0;
+	boost::shared_ptr<SystemLoop> loop(new SystemLoop());
+	loop->init(argc, argv);
+
+	return loop->doLoop();
 }

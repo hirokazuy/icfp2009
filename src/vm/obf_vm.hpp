@@ -27,6 +27,8 @@ public:
 
 	void dump(std::ostream& stream);
 
+	void update() {}
+
 private:
 	void dumpOperator(std::ostream& stream);
 	void dumpMemory(std::ostream& stream);
