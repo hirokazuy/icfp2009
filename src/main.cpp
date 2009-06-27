@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
 
 	ObfVM vm;
 	loadFromFile(vm, argv[1]);
+	vm.dump(std::cout);
 
 	return 0;
 }

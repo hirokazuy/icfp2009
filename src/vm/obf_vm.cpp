@@ -1,6 +1,7 @@
 // -*- Mode: c++; Coding: utf-8; tab-width: 4; -*-
 #include "obf_vm.hpp"
 #include "obf_reader.hpp"
+#include "obf_operator.hpp"
 
 int ObfVM::load(std::istream& stream) {
 	ObfReader reader(stream);
@@ -18,13 +19,23 @@ void ObfVM::addFrame(const ObfFrame& frame) {
 	memory_.push_back(frame.data);
 }
 
-void ObfVM::dump() {
-	dumpOperator();
-	dumpMemory();
+
+
+
+
+void ObfVM::dump(std::ostream& os) {
+	dumpOperator(os);
+	dumpMemory(os);
 }
 
-void ObfVM::dumpOperator() {
-		
+void ObfVM::dumpOperator(std::ostream& os) {
+	typedef instructions_t::iterator iterator_t;
+	iterator_t end = operators_.end();
+	for (iterator_t it = operators_.begin();
+		 it != end; ++it) {
+		obfops_t ops = decode(*it);
+		ops->dump(os) << "\n";
+	}
 }
 
-void ObfVM::dumpMemory() {}
+void ObfVM::dumpMemory(std::ostream& os) {}
