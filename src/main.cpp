@@ -4,6 +4,7 @@
 //------------------------------------------------------------------------------
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 struct ObfFrame
 {
@@ -40,12 +41,8 @@ public:
 		return val;
 	}
 
-	double readDouble() {
-		return read<double>();
-	}
-
-	int readInt() {
-		return read<unsigned int>();
+	int size() {
+		return counter_;
 	}
 
 	int isEof() {
@@ -57,8 +54,42 @@ private:
 	int counter_;
 };
 
+class ObfVM
+{
+public:
+	ObfVM() {}
+	~ObfVM() {}
+
+	int load(std::istream& stream) {
+		ObfReader reader(stream);
+		while (true) {
+			ObfFrame frame = reader.getNextFrame();
+			if (reader.isEof()) break;
+
+			addFrame(frame);
+			std::cout << frame.instruction << ", " << frame.data << std::endl;
+		}
+		return reader.size();
+	}
+
+	void addFrame(const ObfFrame& frame) {
+		operators_.push_back(frame.instruction);
+		memory_.push_back(frame.data);
+	}
+
+private:
+	std::vector<double> memory_;
+	std::vector<unsigned int> operators_;
+};
+
 void printUsage() {
 	std::cout << "usage: simulator obf" << std::endl;
+}
+
+void loadFromFile(ObfVM& vm, char *filename) {
+	std::fstream stream(filename, std::fstream::in | std::fstream::binary);
+	vm.load(stream);
+	stream.close();
 }
 
 int main(int argc, char *argv[])
@@ -68,15 +99,8 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
-	std::fstream stream(argv[1], std::fstream::in | std::fstream::binary);
-	ObfReader reader(stream);
-	while (true) {
-		ObfFrame frame = reader.getNextFrame();
-		if (reader.isEof()) break;
-
-		std::cout << frame.instruction << ", " << frame.data << std::endl;
-	}
-	stream.close();
+	ObfVM vm;
+	loadFromFile(vm, argv[1]);
 
 	return 0;
 }
