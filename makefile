@@ -1,7 +1,7 @@
 # -*- Mode: makefile; Coding: utf-8; tab-width: 4; -*-
 TARGET = simulator
 
-SRCS = src/main.cpp
+SRCS = src/main.cpp src/vm/obf_vm.cpp
 OBJS = $(patsubst %.cpp, %.o, ${SRCS})
 
 CXXFLAGS = -g -O0 -Wall
