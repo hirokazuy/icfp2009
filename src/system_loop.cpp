@@ -27,6 +27,9 @@ bool SystemLoop::init(int argc, char *argv[]) {
 	initVM((*vm_), argv[1]);
 
 	vm_->dump(std::cout);
+	vm_->getInputPort()[2] = 10;
+	vm_->getInputPort()[3] = 30;
+	vm_->getInputPort()[9] = 1001;
 
 	return true;
 }
@@ -36,7 +39,9 @@ int SystemLoop::doLoop()
 	SDL_Event evt;
 	bool running = true;
 	while (running) {
+		vm_->execute();
 		vm_->update();
+		std::cout << *vm_ << std::endl;
 		draw();
 		while (SDL_PollEvent(&evt)) {
 			switch (evt.type) {

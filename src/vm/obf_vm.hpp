@@ -5,8 +5,14 @@
 #include <istream>
 #include <ostream>
 #include <vector>
+#include <boost/shared_ptr.hpp>
+
+#include "mapped_port.hpp"
 
 class ObfFrame;
+struct ObfOps;
+struct StypeOps;
+struct DtypeOps;
 
 class ObfVM
 {
@@ -18,24 +24,39 @@ public:
 	typedef std::vector<memorydata_t> memory_t;
 
 public:
-	ObfVM() {}
+	ObfVM();
 	~ObfVM() {}
 
 	int load(std::istream& stream);
 
 	void addFrame(const ObfFrame& frame);
 
+	MappedPort& getInputPort();
+	MappedPort& getOutputPort();
+
 	void dump(std::ostream& stream);
 
+	int execute();
 	void update() {}
 
 private:
+	void dispatch(boost::shared_ptr<ObfOps> op);
+	void executeStypeOps(StypeOps* op);
+	void executeDtypeOps(DtypeOps* op);
+
 	void dumpOperator(std::ostream& stream);
 	void dumpMemory(std::ostream& stream);
 
 private:
 	instructions_t operators_;
 	memory_t memory_;
+	MappedPort input_;
+	MappedPort output_;
+	int status_;
+
+	friend std::ostream& operator<<(std::ostream& os, ObfVM& vm);
 };
+
+std::ostream& operator<<(std::ostream& os, ObfVM& vm);
 
 #endif // __VM_OBF_VM_HPP__

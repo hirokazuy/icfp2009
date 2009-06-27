@@ -6,11 +6,11 @@ static DtypeOp getDtypeOpValue(unsigned int instruction) {
 }
 
 static short getDtypeR1Value(unsigned int instruction) {
-	return static_cast<short>((instruction >> 14) & 0x0fff);
+	return static_cast<short>((instruction >> 14) & 0x3fff);
 }
 
 static short getDtypeR2Value(unsigned int instruction) {
-	return static_cast<short>(instruction & 0x0fff);
+	return static_cast<short>(instruction & 0x3fff);
 }
 
 static StypeOp getStypeOpValue(unsigned int instruction) {
@@ -18,11 +18,11 @@ static StypeOp getStypeOpValue(unsigned int instruction) {
 }
 
 static short getStypeR1Value(unsigned int instruction) {
-	return static_cast<short>(instruction & 0x0fff);
+	return static_cast<short>(instruction & 0x3fff);
 }
 
 static short getStypeImmValue(unsigned int instruction) {
-	return static_cast<short>((instruction >> 14) & 0xfffff);
+	return static_cast<short>((instruction >> 14) & 0x0fffff);
 }
 
 static ObfOps* decodeDtype(unsigned int instruction) {
@@ -55,6 +55,11 @@ boost::shared_ptr<ObfOps> decode(unsigned int instruction) {
 	}
 	return boost::shared_ptr<ObfOps>(ret);
 }
+
+CmpzType decodeCmpzType(unsigned int imm) {
+	return static_cast<CmpzType>( imm >> 7 );
+}
+
 
 static const char *OpsTypeName[] = {
 	"D-Type", "S-Type",

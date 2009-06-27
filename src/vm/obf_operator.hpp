@@ -11,6 +11,7 @@ enum OpsType {
 
 struct ObfOps {
 	OpsType type;
+	size_t addr;
 
 	virtual std::ostream& dump(std::ostream& os);
 };
@@ -35,13 +36,20 @@ enum StypeOp {
 
 struct StypeOps: ObfOps {
 	StypeOp ops;
-	short imm;
+	unsigned int imm;
 	short r1;
 
 	virtual std::ostream& dump(std::ostream& os);
 };
 
+// Cmpz operator
+enum CmpzType {
+	LTZ, LEZ, EQZ, GEZ, GTZ,
+};
+
 typedef boost::shared_ptr<ObfOps> obfops_t;
 obfops_t decode(unsigned int instruction);
+
+CmpzType decodeCmpzType(unsigned int imm);
 
 #endif // __VM_OBF_OPERATOR_HPP__
