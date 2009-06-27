@@ -22,15 +22,30 @@ public:
 		ObfFrame frame;
 		if (counter_ & 1) {
 			// odd
-			stream_ >> frame.instruction;
-			stream_ >> frame.data;
+			frame.instruction = read<unsigned int>();
+			frame.data = read<double>();
 		} else {
 			// even
-			stream_ >> frame.data;
-			stream_ >> frame.instruction;
+			frame.data = read<double>();
+			frame.instruction = read<unsigned int>();
 		}
 		++counter_;
 		return frame;
+	}
+
+	template<typename T>
+	T read() {
+		T val;
+		stream_.read(reinterpret_cast<char*>(&val), sizeof(T));
+		return val;
+	}
+
+	double readDouble() {
+		return read<double>();
+	}
+
+	int readInt() {
+		return read<unsigned int>();
 	}
 
 	int isEof() {
@@ -53,12 +68,15 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
-	std::fstream stream(argv[1]);
+	std::fstream stream(argv[1], std::fstream::in | std::fstream::binary);
 	ObfReader reader(stream);
-	while (reader.isEof()) {
+	while (true) {
 		ObfFrame frame = reader.getNextFrame();
+		if (reader.isEof()) break;
+
 		std::cout << frame.instruction << ", " << frame.data << std::endl;
 	}
+	stream.close();
 
 	return 0;
 }

@@ -4,7 +4,7 @@ TARGET = simulator
 SRCS = src/main.cpp
 OBJS = $(patsubst %.cpp, %.o, ${SRCS})
 
-CXXFLAGS = -g -O2 -Wall
+CXXFLAGS = -g -O0 -Wall
 
 .PHONY: all clean
 
