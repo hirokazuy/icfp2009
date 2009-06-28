@@ -5,6 +5,7 @@
 #include "system_loop.hpp"
 #include "window/window.hpp"
 #include "vm/obf_vm.hpp"
+#include "ctrl/hohmann_controller.hpp"
 
 SystemLoop::SystemLoop() {}
 SystemLoop::~SystemLoop() {}
@@ -27,9 +28,9 @@ bool SystemLoop::init(int argc, char *argv[]) {
 	initVM((*vm_), argv[1]);
 
 	vm_->dump(std::cout);
-	vm_->getInputPort()[2] = 10;
-	vm_->getInputPort()[3] = 10;
 	vm_->setConfig(1001);
+	vm_->execute();
+	controller_ = boost::shared_ptr<ControllerBase>(new HohmannController());
 
 	return true;
 }
@@ -39,8 +40,8 @@ int SystemLoop::doLoop()
 	SDL_Event evt;
 	bool running = true;
 	while (running) {
+		controller_->update(vm_);
 		vm_->execute();
-		vm_->update();
 		std::cout << *vm_ << std::endl;
 		draw();
 		while (SDL_PollEvent(&evt)) {
@@ -57,6 +58,7 @@ int SystemLoop::doLoop()
 			}
 		}
 		SDL_Delay(20);
+		vm_->setConfig(0);
 	}
 	return 0;
 }

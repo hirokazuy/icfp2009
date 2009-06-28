@@ -6,11 +6,11 @@ static DtypeOp getDtypeOpValue(unsigned int instruction) {
 }
 
 static short getDtypeR1Value(unsigned int instruction) {
-	return static_cast<short>((instruction >> 14) & 0x3fff);
+	return static_cast<short>((instruction >> 14) & 0x03fff);
 }
 
 static short getDtypeR2Value(unsigned int instruction) {
-	return static_cast<short>(instruction & 0x3fff);
+	return static_cast<short>(instruction & 0x03fff);
 }
 
 static StypeOp getStypeOpValue(unsigned int instruction) {
@@ -18,11 +18,11 @@ static StypeOp getStypeOpValue(unsigned int instruction) {
 }
 
 static short getStypeR1Value(unsigned int instruction) {
-	return static_cast<short>(instruction & 0x3fff);
+	return static_cast<short>(instruction & 0x03fff);
 }
 
 static short getStypeImmValue(unsigned int instruction) {
-	return static_cast<short>((instruction >> 14) & 0x01ff);
+	return static_cast<short>((instruction >> 14) & 0x03ff);
 }
 
 static ObfOps* decodeDtype(unsigned int instruction) {

@@ -4,8 +4,9 @@ TARGET = simulator
 SRCS = src/main.cpp src/system_loop.cpp \
 		src/space.cpp src/earth.cpp src/satellite.cpp \
 		src/vm/obf_vm.cpp src/vm/obf_operator.cpp \
-		src/vm/mapped_port.cpp \
-		src/window/window.cpp src/window/sdl.cpp
+		src/vm/mapped_port.cpp src/vm/input_port.cpp \
+		src/window/window.cpp src/window/sdl.cpp \
+		src/ctrl/hohmann_controller.cpp
 OBJS = $(patsubst %.cpp, %.o, ${SRCS})
 
 CXXFLAGS = -g -O0 -Wall

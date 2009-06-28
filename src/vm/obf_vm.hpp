@@ -8,6 +8,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "mapped_port.hpp"
+#include "input_port.hpp"
 
 class ObfFrame;
 struct ObfOps;
@@ -51,7 +52,7 @@ private:
 private:
 	instructions_t operators_;
 	memory_t memory_;
-	MappedPort input_;
+	InputPort input_;
 	MappedPort output_;
 	int status_;
 

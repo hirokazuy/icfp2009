@@ -26,7 +26,7 @@ void ObfVM::addFrame(const ObfFrame& frame) {
 }
 
 void ObfVM::setConfig(unsigned int config) {
-	input_[ input_.size() - 1 ] = config;
+	input_[ InputPort::CONFIG_PORT ] = config;
 }
 
 MappedPort& ObfVM::getInputPort() {
@@ -58,6 +58,8 @@ void ObfVM::dispatch(obfops_t op) {
 	} else if (op->type == DType) {
 		// D-Type operator
 		executeDtypeOps(static_cast<DtypeOps*>(&*op));
+	} else {
+		throw std::runtime_error("unknown operator type");
 	}
 }
 
@@ -69,7 +71,7 @@ void ObfVM::executeStypeOps(StypeOps* op) {
 		switch (decodeCmpzType(op->imm)) {
 		case LTZ: status_ = mem[op->r1] < 0.0 ? 1 : 0; break;
 		case LEZ: status_ = mem[op->r1] <= 0.0 ? 1 : 0; break;
-		case EQZ: status_ = mem[op->r1] == 0.0 ? 1 : 0; break;
+		case EQZ: status_ = ::abs(mem[op->r1]) < 0.00000000001 ? 1 : 0; break;
 		case GEZ: status_ = mem[op->r1] >= 0.0 ? 1 : 0; break;
 		case GTZ: status_ = mem[op->r1] > 0.0 ? 1 : 0; break;
 		default:
@@ -81,11 +83,7 @@ void ObfVM::executeStypeOps(StypeOps* op) {
 	case Sqrt: mem[op->addr] = ::sqrt(mem[op->r1]); break;
 	case Copy: mem[op->addr] = mem[op->r1]; break;
 	case Input:
-		if (op->r1 == 0x3e80) {
-			mem[op->addr] = input_[input_.size() - 1];
-		} else {
-			mem[op->addr] = input_[op->r1];
-		}
+		mem[op->addr] = input_[op->r1];
 		break;
 	default:
 		throw std::runtime_error("unknown operator");
@@ -99,7 +97,7 @@ void ObfVM::executeDtypeOps(DtypeOps* op) {
 	case Sub: mem[op->addr] = mem[op->r1] - mem[op->r2]; break;
 	case Mult: mem[op->addr] = mem[op->r1] * mem[op->r2]; break;
 	case Div: 
-		if (abs(mem[op->r2]) < 0.00000001) {
+		if (::abs(mem[op->r2]) < 0.00000001) {
 			mem[op->addr] = 0.0f;
 		} else {
 			mem[op->addr] = mem[op->r1] / mem[op->r2];
@@ -147,4 +145,12 @@ void ObfVM::dumpOperator(std::ostream& os) {
 	}
 }
 
-void ObfVM::dumpMemory(std::ostream& os) {}
+void ObfVM::dumpMemory(std::ostream& os) {
+	typedef memory_t::iterator iterator_t;
+	iterator_t end = memory_.end();
+	int addr = 0;
+	for (iterator_t it = memory_.begin();
+		 it != end; ++it, ++addr) {
+		os << "addr: " << addr << ", " << (*it) << "\n";
+	}
+}

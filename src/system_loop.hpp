@@ -4,6 +4,7 @@
 
 #include <boost/shared_ptr.hpp>
 
+class ControllerBase;
 class SDLWindow;
 class ObfVM;
 
@@ -21,6 +22,7 @@ public:
 private:
 	boost::shared_ptr<SDLWindow> window_;
 	boost::shared_ptr<ObfVM> vm_;
+	boost::shared_ptr<ControllerBase> controller_;
 };
 
 #endif // __SYSTEM_LOOP_HPP__

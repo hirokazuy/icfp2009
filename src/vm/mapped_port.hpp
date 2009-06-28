@@ -8,10 +8,10 @@ class MappedPort
 {
 public:
 	MappedPort(size_t size);
-	~MappedPort();
+	virtual ~MappedPort();
 
-	double& operator[](size_t idx);
-	size_t size();
+	virtual double& operator[](size_t idx);
+	virtual size_t size();
 
 private:
 	std::vector<double> values_;
