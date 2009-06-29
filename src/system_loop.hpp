@@ -7,6 +7,7 @@
 class ControllerBase;
 class SDLWindow;
 class ObfVM;
+class Model;
 
 class SystemLoop
 {
@@ -23,6 +24,8 @@ private:
 	boost::shared_ptr<SDLWindow> window_;
 	boost::shared_ptr<ObfVM> vm_;
 	boost::shared_ptr<ControllerBase> controller_;
+	Model* model_;
+	unsigned int config_;
 };
 
 #endif // __SYSTEM_LOOP_HPP__

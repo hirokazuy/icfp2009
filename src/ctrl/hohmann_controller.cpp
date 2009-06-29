@@ -1,95 +1,136 @@
 // -*- Mode: c++; Coding: utf-8; tab-width: 4; -*-
 #include "hohmann_controller.hpp"
+#include "command_set.hpp"
 #include "../vm/obf_vm.hpp"
 #include "../vm/mapped_port.hpp"
+#include "../model/hohmann_model.hpp"
 #include <iostream>
 
 const double HohmannController::G = 6.67428e-11;
 const double HohmannController::M = 6.0e+24;
 
 HohmannController::HohmannController()
-	: score_(0.0), fuel_(0.0), vec_(0.0, 0.0), prevVec_(0.0, 0.0),
-	  initradius_(0.0), radius_(0.0), velocity_(0.0, 0.0), step_(0)
-{}
+	: step_(0)
+{
+	model_ = new HohmannModel();
+	commands_ = new CommandSet();
+}
 
 HohmannController::~HohmannController() {
+	delete model_;
+	delete commands_;
+}
+
+void HohmannController::init(boost::shared_ptr<ObfVM> vm, double config) {
+	//
+	vm->setConfig(config);
+	vm->execute();
+	commands_->update(step_++, vm);
+}
+
+Model* HohmannController::getModel() {
+	return model_;
+}
+
+CommandSet* HohmannController::getCommandSet() {
+	return commands_;
 }
 
 int HohmannController::update(boost::shared_ptr<ObfVM> vm) {
-	++step_;
-
+	std::cout << "---------------------update--------------" << std::endl;
 	updateEnv(vm);
-	if (step_ == 1) {
+	if (step_ < 3) {
+		++step_;
 		return 0;
 	}
 
+	calculateNextVector(vm);
+
+	commands_->update(step_, vm);
+	if (model_->getScore() != 0.0) {
+		commands_->appendLast(step_);
+	}
+	++step_;
+
+	return model_->getScore() != 0.0;
+}
+
+void HohmannController::calculateNextVector(boost::shared_ptr<ObfVM> vm) {
 	Vector2D<double> deltaV1 = calculateDeltaV1();
 	Vector2D<double> deltaV2 = calculateDeltaV2();
 	std::cout << "step: " << std::dec << step_ << std::endl;
-	std::cout << "prev: " << velocity_ << std::endl;
+	std::cout << "prev: " << model_->getVelocity() << std::endl;
 	std::cout << "next1: " << deltaV1 << std::endl;
-	std::cout << "next2: " << deltaV2 << std::endl;
+	std::cout << "next2: " << deltaV2 << std::endl << std::endl;
 
 	Vector2D<double> nextVel = deltaV1;
-	if (step_ > 2) {
+//	if (step_ > 4) {
+//		nextVel *= 0;
+//		updateVector(vm, nextVel);
+//		return 0;
+//	}
+	if (abs(model_->getRelative().length() - model_->getTargetRadius()) > 61000) {
 		nextVel *= 0;
 		updateVector(vm, nextVel);
-		return 0;
+		return;
 	}
-	if (step_ > 500) {
-		nextVel = deltaV2;
-	}
-//	nextVel *= 10 / nextVel.length();
+//	if (step_ > 500) {
+//		nextVel = deltaV2;
+//	}
+	nextVel = -model_->getVelocity();
+	if (nextVel.length() > 500.0)
+		nextVel = nextVel.norm() * 500.0;
 
+	if (model_->getFuel() <= 0) {
+		nextVel *= 0;
+		updateVector(vm, nextVel);
+		return;
+	}
 	updateVector(vm, nextVel);
 
 	std::cout << "velocity: " << nextVel << std::endl;
-	return 0;
 }
 
 void HohmannController::updateEnv(boost::shared_ptr<ObfVM> vm) {
-	MappedPort& outPort = vm->getOutputPort();
-	prevVec_ = vec_;
-
-	score_ = outPort[0];
-	fuel_ = outPort[1];
-	vec_.setX(outPort[2]);
-	vec_.setY(outPort[3]);
-	radius_ = outPort[4];
-	if (step_ == 0) {
-		initradius_ = vec_.length();
-	}
-
-	velocity_ = vec_ - prevVec_;
-	std::cout << "now velocity: " << velocity_ << std::endl;
+	model_->updateEnv(vm);
 }
 
 Vector2D<double> HohmannController::calculateDeltaV1() {
-	double r1 = vec_.length();
-	double r2 = radius_;
+	Vector2D<double> nowVector = model_->getRelative();
+	double r1 = nowVector.length();
+	double r2 = model_->getTargetRadius();
 	std::cout << "diff: " << r2 - r1 << std::endl;
 
-	double v = ::sqrt(G*M/r1) * (::sqrt((2 * r2) / (r1 + r2)) - 1);
-	Vector2D<double> normVec = vec_.norm();
-	Vector2D<double> normVel = velocity_.norm();
-	normVel = Vector2D<double>(normVel.getY(), normVel.getX());
+//	double v = ::sqrt(G*M/r1) * (::sqrt((2 * r2) / (r1 + r2)) - 1);
+	double v = ::sqrt(G*M/r2);
+	Vector2D<double> normVec = nowVector.norm();
+	Vector2D<double> velocity = model_->getVelocity();
+	Vector2D<double> normVel = velocity.norm();
+	Vector2D<double> vecT(-normVec.getX(), normVec.getY());
+	double direction = normVel.dot(vecT);
+	if (direction < 0) {
+		vecT = -vecT;
+	}
+	vecT *= v;
 
-	return velocity_ + (normVel * v);
+	return vecT - velocity;
 }
 
 Vector2D<double> HohmannController::calculateDeltaV2() {
-	double r1 = vec_.length();
-	double r2 = radius_;
+//	double r1 = vec_.length();
+//	double r2 = radius_;
 
-	double v = ::sqrt(G*M/r2) * ( 1 - ::sqrt((2 * r1) / (r1 + r2)) );
-	Vector2D<double> normVec = vec_.norm();
-	Vector2D<double> normVel = velocity_.norm();
-	normVel = Vector2D<double>(-normVel.getY(), -normVel.getX());
+//	double v = ::sqrt(G*M/r2) * ( 1 - ::sqrt((2 * r1) / (r1 + r2)) );
+//	Vector2D<double> normVec = vec_.norm();
+//	Vector2D<double> normVel = velocity_.norm();
+//	normVel = Vector2D<double>(-normVel.getY(), -normVel.getX());
 
-	return normVel * v;
+//	return normVel * v;
+	return Vector2D<double>(0.0, 0.0);
 }
 
 void HohmannController::updateVector(boost::shared_ptr<ObfVM> vm, Vector2D<double> v) {
+	std::cout << "update velocity: " << v << std::endl;
 	MappedPort& inPort = vm->getInputPort();
 	inPort[2] = v.getX();
 	inPort[3] = v.getY();

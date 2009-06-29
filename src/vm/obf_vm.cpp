@@ -1,13 +1,15 @@
 // -*- Mode: c++; Coding: utf-8; tab-width: 4; -*-
 #include <math.h>
+#include <float.h>
 #include <stdexcept>
 #include <sstream>
+#include <iostream>
 
 #include "obf_vm.hpp"
 #include "obf_reader.hpp"
 #include "obf_operator.hpp"
 
-ObfVM::ObfVM() : input_(10), output_(10), status_(0) {}
+ObfVM::ObfVM() : input_(0x3ff), output_(0x3ff), status_(0) {}
 
 int ObfVM::load(std::istream& stream) {
 	ObfReader reader(stream);
@@ -37,6 +39,13 @@ MappedPort& ObfVM::getOutputPort() {
 	return output_;
 }
 
+int ObfVM::resizeMappingPort(size_t size) {
+//	if (input_.size() > size && output_.size() > size) {
+//		return size;
+//	}
+//	input_.resize(size);
+//	output_.resize(size);
+}
 
 int ObfVM::execute() {
 	typedef instructions_t::iterator iterator_t;
@@ -44,6 +53,7 @@ int ObfVM::execute() {
 	iterator_t end = operators_.end();
 	for (iterator_t it = operators_.begin();
 		 it != end; ++it, ++addr) {
+//		std::cout << addr << ", " << (*it) << std::endl;
 		obfops_t ops = decode(*it);
 		ops->addr = addr;
 		dispatch(ops);
@@ -63,15 +73,19 @@ void ObfVM::dispatch(obfops_t op) {
 	}
 }
 
+#include <iostream>
 void ObfVM::executeStypeOps(StypeOps* op) {
 	memory_t& mem = memory_;
 	switch (op->ops) {
 	case Noop: break;
 	case Cmpz:
 		switch (decodeCmpzType(op->imm)) {
-		case LTZ: status_ = mem[op->r1] < 0.0 ? 1 : 0; break;
+		case LTZ:
+			std::cout << "LTZ:" << mem[op->r1] << std::endl;
+			status_ = mem[op->r1] < 0.0 ? 1 : 0;
+			break;
 		case LEZ: status_ = mem[op->r1] <= 0.0 ? 1 : 0; break;
-		case EQZ: status_ = ::abs(mem[op->r1]) < 0.00000000001 ? 1 : 0; break;
+		case EQZ: status_ = ::fabs(mem[op->r1]) <= DBL_EPSILON ? 1 : 0; break;
 		case GEZ: status_ = mem[op->r1] >= 0.0 ? 1 : 0; break;
 		case GTZ: status_ = mem[op->r1] > 0.0 ? 1 : 0; break;
 		default:
@@ -97,7 +111,7 @@ void ObfVM::executeDtypeOps(DtypeOps* op) {
 	case Sub: mem[op->addr] = mem[op->r1] - mem[op->r2]; break;
 	case Mult: mem[op->addr] = mem[op->r1] * mem[op->r2]; break;
 	case Div: 
-		if (::abs(mem[op->r2]) < 0.00000001) {
+		if (::fabs(mem[op->r2]) <= DBL_EPSILON) {
 			mem[op->addr] = 0.0f;
 		} else {
 			mem[op->addr] = mem[op->r1] / mem[op->r2];
@@ -137,9 +151,11 @@ void ObfVM::dump(std::ostream& os) {
 
 void ObfVM::dumpOperator(std::ostream& os) {
 	typedef instructions_t::iterator iterator_t;
+	unsigned int count = 0;
 	iterator_t end = operators_.end();
 	for (iterator_t it = operators_.begin();
-		 it != end; ++it) {
+		 it != end; ++it, ++count) {
+		os << std::hex << count << ": 0x" << (*it) << ":";
 		obfops_t ops = decode(*it);
 		ops->dump(os) << "\n";
 	}

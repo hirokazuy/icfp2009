@@ -44,7 +44,7 @@ struct StypeOps: ObfOps {
 
 // Cmpz operator
 enum CmpzType {
-	LTZ, LEZ, EQZ, GEZ, GTZ,
+	LTZ = 0, LEZ, EQZ, GEZ, GTZ,
 };
 
 typedef boost::shared_ptr<ObfOps> obfops_t;

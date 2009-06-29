@@ -68,6 +68,10 @@ public:
 		return *this;
 	}
 
+	Vector2D operator-() {
+		return Vector2D(-this->x_, -this->y_);
+	}
+
 	double length2() {
 		return x_ * x_ + y_ * y_;
 	}

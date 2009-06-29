@@ -3,7 +3,9 @@
 #define __CTRL_HOHMANN_CONTROLLER_HPP__
 
 #include "controller_base.hpp"
-#include "vector2d.hpp"
+#include "../common/vector2d.hpp"
+
+class HohmannModel;
 
 class HohmannController : public ControllerBase {
 public:
@@ -14,22 +16,21 @@ public:
 	HohmannController();
 	virtual ~HohmannController();
 
+	virtual void init(boost::shared_ptr<ObfVM> vm, double config);
+	virtual Model* getModel();
+	virtual CommandSet* getCommandSet();
 	virtual int update(boost::shared_ptr<ObfVM> vm);
 
 protected:
+	void calculateNextVector(boost::shared_ptr<ObfVM> vm);
 	void updateEnv(boost::shared_ptr<ObfVM> vm);
 	Vector2D<double> calculateDeltaV1();
 	Vector2D<double> calculateDeltaV2();
 	void updateVector(boost::shared_ptr<ObfVM> vm, Vector2D<double> v);
 
 private:
-	double score_;
-	double fuel_;
-	Vector2D<double> vec_;
-	Vector2D<double> prevVec_;
-	double initradius_;
-	double radius_;
-	Vector2D<double> velocity_;
+	HohmannModel *model_;
+	CommandSet *commands_;
 	unsigned int step_;
 };
 

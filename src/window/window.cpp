@@ -78,7 +78,8 @@ bool GLSDLWindow::init(const SDLWindowInitOption& opt)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(60, ratio, 1, 10);
+//	gluPerspective(60, ratio, 1, 10);
+	::glOrtho(0, o.width, 0, o.height, -1.0f, 1.0f);
 	glMatrixMode(GL_MODELVIEW);
 
 	glViewport(0, 0, o.width, o.height);
@@ -87,5 +88,7 @@ bool GLSDLWindow::init(const SDLWindowInitOption& opt)
 }
 
 void GLSDLWindow::clear() {
-	::glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	::glClear( GL_COLOR_BUFFER_BIT );
+	::glMatrixMode(GL_MODELVIEW);
+	::glLoadIdentity();
 }

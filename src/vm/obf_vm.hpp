@@ -9,6 +9,7 @@
 
 #include "mapped_port.hpp"
 #include "input_port.hpp"
+#include "obf_memory.hpp"
 
 class ObfFrame;
 struct ObfOps;
@@ -22,7 +23,7 @@ public:
 	typedef std::vector<instruction_t> instructions_t;
 
 	typedef double memorydata_t;
-	typedef std::vector<memorydata_t> memory_t;
+	typedef ObfMemory<memorydata_t> memory_t;
 
 public:
 	ObfVM();
@@ -35,6 +36,7 @@ public:
 	void setConfig(unsigned int config);
 	MappedPort& getInputPort();
 	MappedPort& getOutputPort();
+	int resizeMappingPort(size_t size);
 
 	void dump(std::ostream& stream);
 

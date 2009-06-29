@@ -83,11 +83,15 @@ std::ostream& DtypeOps::dump(std::ostream& os) {
 	os << DtypeOpName[ops];
 	os << "(" << std::hex << static_cast<int>(r1) << ", "
 	   << std::hex << static_cast<int>(r2) << ")";
+	unsigned int opcode = (ops << 28) | (r1 << 14) | r2;
+	os << "[" << std::hex << opcode << "]";
 	return os;
 }
 
 std::ostream& StypeOps::dump(std::ostream& os) {
 	ObfOps::dump(os) << ",";
 	os << StypeOpName[ops] << "<" << imm << ">,(" << r1 << ")";
+	unsigned int opcode = (ops << 24) | (imm << 14) | r1;
+	os << "[" << std::hex << opcode << "]";
 	return os;
 }
