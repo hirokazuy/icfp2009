@@ -48,7 +48,7 @@ int SystemLoop::doLoop()
 	SDL_Event evt;
 	bool running = true;
 	while (running) {
-		for (int i = 0; i < 1000; ++i) {
+		for (int i = 0; i < 100; ++i) {
 			if (controller_->update(vm_)) {
 				running = false;
 				break;

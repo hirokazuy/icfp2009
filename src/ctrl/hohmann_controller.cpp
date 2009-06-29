@@ -58,7 +58,7 @@ int HohmannController::update(boost::shared_ptr<ObfVM> vm) {
 			mode_ = START;
 		}
 		std::cout << "here" << std::endl;
-	} else if (::fabs(model_->getRelative().length() - model_->getTargetRadius()) < 70) {
+	} else if (::fabs(model_->getRelative().length() - model_->getTargetRadius()) < 50) {
 		std::cout << "here" << std::endl;
 		if (mode_ == ACCELL) {
 			updateVector(vm, model_->getVelocity().norm() * deltaV2_.length());
@@ -124,7 +124,7 @@ void HohmannController::updateEnv(boost::shared_ptr<ObfVM> vm) {
 		mode_ = INIT;
 	} else {
 		model_->updateEnv(vm);
-		if (mode_ == INIT && step_ > 500)
+		if (mode_ == INIT && step_ > 8)
 			mode_ = START;
 	}
 }
