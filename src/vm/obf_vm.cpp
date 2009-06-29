@@ -80,10 +80,7 @@ void ObfVM::executeStypeOps(StypeOps* op) {
 	case Noop: break;
 	case Cmpz:
 		switch (decodeCmpzType(op->imm)) {
-		case LTZ:
-			std::cout << "LTZ:" << mem[op->r1] << std::endl;
-			status_ = mem[op->r1] < 0.0 ? 1 : 0;
-			break;
+		case LTZ: status_ = mem[op->r1] < 0.0 ? 1 : 0; break;
 		case LEZ: status_ = mem[op->r1] <= 0.0 ? 1 : 0; break;
 		case EQZ: status_ = ::fabs(mem[op->r1]) <= DBL_EPSILON ? 1 : 0; break;
 		case GEZ: status_ = mem[op->r1] >= 0.0 ? 1 : 0; break;

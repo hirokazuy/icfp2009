@@ -9,6 +9,7 @@ template<typename T>
 class Vector2D
 {
 public:
+	Vector2D() {}
 	Vector2D(T x, T y) : x_(x), y_(y) {}
 	~Vector2D() {}
 

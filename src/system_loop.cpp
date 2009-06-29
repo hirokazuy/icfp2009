@@ -48,14 +48,14 @@ int SystemLoop::doLoop()
 	SDL_Event evt;
 	bool running = true;
 	while (running) {
-		for (int i = 0; i < 100; ++i) {
+		for (int i = 0; i < 1000; ++i) {
 			if (controller_->update(vm_)) {
 				running = false;
 				break;
 			}
 			vm_->execute();
-			vm_->dump(std::cout);
-			std::cout << *vm_ << std::endl;
+//			vm_->dump(std::cout);
+//			std::cout << *vm_ << std::endl;
 		}
 		draw();
 		while (SDL_PollEvent(&evt)) {
@@ -71,7 +71,7 @@ int SystemLoop::doLoop()
 				break;
 			}
 		}
-		SDL_Delay(20);
+		SDL_Delay(1);
 	}
 	std::ofstream out("out.dat", std::fstream::out | std::fstream::binary);
 	write<unsigned int>(out, 0xCAFEBABE);

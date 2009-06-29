@@ -23,11 +23,13 @@ public:
 	virtual void updateEnv(boost::shared_ptr<ObfVM> vm);
 	virtual void draw();
 
+	void initialize(boost::shared_ptr<ObfVM> vm);
 	double getScore();
 	double getFuel();
 	vector_t& getRelative();
 	vector_t& getPrevRelative();
 	vector_t& getVelocity();
+	double getInitRadius();
 	double getTargetRadius();
 
 protected:
@@ -40,6 +42,7 @@ private:
 	Vector2D<double> vec_;
 	Vector2D<double> prevVec_;
 	double radius_;
+	double initRadius_;
 	Vector2D<double> velocity_;
 	unsigned int step_;
 };
